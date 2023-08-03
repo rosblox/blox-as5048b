@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    network_mode: "host"
+    restart: always
+
+  rosblox-studio:
+    image: ghcr.io/rosblox/studio:latest
+    volumes:
+      - ./studio/layout.json:/src/layout.json
+    ports:
+      - 8080:8080
+    restart: always
+
+  ros-rosbridge-suite:
+    image: ghcr.io/rosblox/ros-rosbridge-suite:humble
+    ports:
+      - 9090:9090
+    restart: always
+    command: ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+
+  ros-as5048b:
+    image: ghcr.io/rosblox/ros-as5048b:humble
+    restart: always
+    devices:
+      - /dev/i2c-1:/dev/i2c-1
+    network_mode: "host"
+    ipc: host
+    pid: host
+    environment: 
+      - UID=1000
+      - GID=1000
+      - I2C_DEVICE=1
+      - I2C_ADDRESS=0x42
+    command: bash -c "usermod -aG i2c ros; su - ros --whitelist-environment=\"I2C_DEVICE,I2C_ADDRESS\" /run.sh"
