@@ -40,3 +40,7 @@ services:
     volumes:
       - ~/.ros/turn_count.yaml:/tmp/turn_count.yaml
     command: su - ros --whitelist-environment="I2C_DEVICE,I2C_ADDRESS" /run.sh
+    logging:
+        driver: "json-file"
+        options:
+            max-size: "10m"
